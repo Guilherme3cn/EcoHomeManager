@@ -1,0 +1,28 @@
+{
+  "expo": {
+    "name": "ecohome-manager",
+    "slug": "ecohome-manager",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "../frontend/assets/logo.png",
+    "userInterfaceStyle": "light",
+    "newArchEnabled": true,
+    "splash": {
+      "image":"../frontend/assets/logo.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
+    "ios": {
+      "supportsTablet": true
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "../frontend/assets/logo.png",
+        "backgroundColor": "#ffffff"
+      }
+    },
+    "web": {
+      "favicon": "../frontend/assets/logo.png"
+    }
+  }
+}
