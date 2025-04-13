@@ -3,7 +3,7 @@ import { View, Text, TextInput, TouchableOpacity, Image, Alert } from 'react-nat
 import { useNavigation } from '@react-navigation/native';
 import styles from '../src/styles/LoginScreenStyles.js';
 
-import { API_URL } from '../src/styles/config/config.js'; // ← URL da API
+import { API_URL } from '../src/config/config.js'; // ← URL da API
 import { salvarToken } from '../../backend/src/services/authService.js'; // ← Funções de token
 
 export default function LoginScreen() {

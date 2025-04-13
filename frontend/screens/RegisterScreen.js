@@ -4,7 +4,7 @@ import { useNavigation } from '@react-navigation/native';
 import styles from '../src/styles/RegisterScreenStyles.js';
 
 
-import { API_URL } from '../src/styles/config/config.js'; // URL da API
+import { API_URL } from '../src/config/config.js'; // URL da API
 
 export default function RegisterScreen() {
     const navigation = useNavigation();
