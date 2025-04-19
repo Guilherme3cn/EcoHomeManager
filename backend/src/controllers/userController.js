@@ -32,9 +32,10 @@ export const registrar = async (req, res) => {
   }
 };
 
- 
+
 
 // Função para listar todos os usuários
+// Função para login de usuário
 export const loginUser = async (req, res) => {
   const { email, senha } = req.body;
 
@@ -56,12 +57,20 @@ export const loginUser = async (req, res) => {
       expiresIn: '1h',
     });
 
-    res.status(200).json({ token });
+    // 🔥 Aqui retornamos token + dados do usuário
+    res.status(200).json({
+      token,
+      usuario: {
+        id: usuario.id,
+        email: usuario.email
+      }
+    });
   } catch (erro) {
     console.error('Erro ao fazer login:', erro);
     res.status(500).json({ mensagem: 'Erro ao fazer login.', erro });
   }
 };
+
 
 // Função para obter os dados do usuário logado
 export const obterUsuarioLogado = async (req, res) => {

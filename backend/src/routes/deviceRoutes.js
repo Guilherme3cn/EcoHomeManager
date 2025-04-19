@@ -1,20 +1,18 @@
-// src/routes/deviceRoutes.js
-
-import express from 'express';
+import { Router } from 'express';
 import {
   cadastrarDispositivo,
   listarDispositivosDoUsuario,
+  buscarDispositivoPorIdOuNome,
   atualizarDispositivo,
   deletarDispositivo,
-  buscarDispositivoPorIdOuNome
 } from '../controllers/deviceController.js';
 
-const router = express.Router();
+const router = Router();
 
 // Todas as rotas de dispositivos agora são públicas
-router.get('/', listarDispositivosDoUsuario); // Lista todos os dispositivos (anteriormente por usuário)
 router.post('/', cadastrarDispositivo); // Cadastra novo dispositivo
-router.get('/:idOuNome', buscarDispositivoPorIdOuNome); // Busca por ID ou nome
+router.get('/usuario/:usuarioId', listarDispositivosDoUsuario); // Lista dispositivos por usuário
+router.get('/buscar/:idOuNome', buscarDispositivoPorIdOuNome); // Busca dispositivo por ID ou nome
 router.put('/:id', atualizarDispositivo); // Atualiza dispositivo
 router.delete('/:id', deletarDispositivo); // Deleta dispositivo
 

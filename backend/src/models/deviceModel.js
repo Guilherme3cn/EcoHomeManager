@@ -4,17 +4,23 @@
 import { pool } from '../config/db.js';
 
 // Inserir um novo dispositivo (sem vínculo com usuário)
-export const insertDevice = async (nome, consumo, icone) => {
-  const sql = 'INSERT INTO dispositivos (nome, consumo, icone) VALUES (?, ?, ?)';
-  const [result] = await pool.query(sql, [nome, consumo, icone]);
-  return result.insertId;
+// src/models/deviceModel.js
+export const insertDevice = async (nome, consumo, icone, usuario_id) => {
+  const [result] = await pool.query(
+    'INSERT INTO dispositivos (nome, consumo, icone, usuario_id) VALUES (?, ?, ?, ?)',
+    [nome, consumo, icone, usuario_id]
+  );
+  return { id: result.insertId };
 };
 
 // Buscar todos os dispositivos
-export async function getAllDevices() {
-  const [rows] = await pool.query('SELECT * FROM dispositivos');
+export const getDevicesByUsuarioId = async (usuario_id) => {
+  const [rows] = await pool.query(
+    'SELECT * FROM dispositivos WHERE usuario_id = ?',
+    [usuario_id]
+  );
   return rows;
-}
+};
 
 // Atualizar um dispositivo existente
 export async function updateDevice(id, nome, consumo, icone) {

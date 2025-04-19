@@ -15,6 +15,7 @@ import TopDevicesPieChart from '../assets/components/TopDevicesPieChart.js';
 import applianceIcons from '../utils/applianceIcons.js';
 import styles from '../src/styles/DashboardScreen.styles.js';
 import { API_URL } from '../src/config/config.js';
+import AsyncStorage from '@react-native-async-storage/async-storage'; // Adicionei o import que estava faltando
 
 export default function DashboardScreen() {
   const [appliances, setAppliances] = useState([]);
@@ -24,12 +25,20 @@ export default function DashboardScreen() {
   const [selectedIconName, setSelectedIconName] = useState(null);
 
   useEffect(() => {
-    buscarDispositivos();
+    buscarDispositivosDoUsuario();
   }, []);
 
-  const buscarDispositivos = async () => {
+  // Função para abrir o modal
+  const openModal = () => {
+    setModalVisible(true);
+  };
+
+  // Função para buscar dispositivos do usuário
+  const buscarDispositivosDoUsuario = async () => {
     try {
-      const response = await fetch(`${API_URL}/dispositivos`);
+      const usuario_id = await AsyncStorage.getItem('usuario_id');
+
+      const response = await fetch(`${API_URL}/dispositivos/usuario/${usuario_id}`);
       const data = await response.json();
 
       if (response.ok) {
@@ -52,45 +61,43 @@ export default function DashboardScreen() {
     }
   };
 
-  const openModal = () => {
-    setModalVisible(true);
-    setNewName('');
-    setNewConsumption('');
-    setSelectedIconName(null);
-  };
-
+  // Função para adicionar novo dispositivo
   const addAppliance = async () => {
     if (!newName || !newConsumption || !selectedIconName) {
-      Alert.alert('Atenção', 'Preencha todos os campos e escolha um ícone.');
+      Alert.alert('Atenção', 'Preencha todos os campos.');
       return;
     }
 
     try {
+      const usuario_id = await AsyncStorage.getItem('usuario_id');
+
+      if (!usuario_id) {
+        Alert.alert('Erro', 'Usuário não encontrado. Faça login novamente.');
+        return;
+      }
+
+      console.log('Enviando dispositivo:', {
+        nome: newName,
+        consumo: newConsumption,
+        icone: selectedIconName,
+        usuario_id: usuario_id,
+      });
+
       const response = await fetch(`${API_URL}/dispositivos`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           nome: newName,
           consumo: newConsumption,
           icone: selectedIconName,
+          usuario_id: usuario_id,
         }),
       });
 
       const data = await response.json();
 
       if (response.ok) {
-        const iconObj = applianceIcons.find(icon => icon.name === selectedIconName);
-
-        const newAppliance = {
-          id: data.id,
-          name: newName,
-          consumption: parseFloat(newConsumption),
-          icon: iconObj?.source,
-        };
-
-        setAppliances([...appliances, newAppliance]);
+        buscarDispositivosDoUsuario();
         setModalVisible(false);
       } else {
         Alert.alert('Erro', data.mensagem || 'Erro ao adicionar dispositivo.');
@@ -101,21 +108,32 @@ export default function DashboardScreen() {
     }
   };
 
+  // Função para deletar dispositivo
   const deleteAppliance = async (id) => {
     try {
       const response = await fetch(`${API_URL}/dispositivos/${id}`, {
-        method: 'DELETE'
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
       });
 
+      const data = await response.json();
+
       if (response.ok) {
-        setAppliances(appliances.filter(item => item.id !== id));
+        // Remove o dispositivo da lista localmente também
+        setAppliances(prevAppliances => prevAppliances.filter(item => item.id !== id));
+        Alert.alert('Sucesso', 'Dispositivo deletado com sucesso!');
       } else {
-        console.error('Erro ao deletar:', await response.json());
+        Alert.alert('Erro', data.mensagem || 'Erro ao deletar dispositivo.');
       }
     } catch (error) {
-      console.error('Erro ao tentar deletar dispositivo:', error);
+      console.error('Erro ao deletar dispositivo:', error);
+      Alert.alert('Erro', 'Falha na comunicação com o servidor.');
     }
   };
+
+
 
   const totalConsumption = appliances.reduce((total, item) => total + item.consumption, 0);
 
@@ -126,6 +144,7 @@ export default function DashboardScreen() {
         <Text style={styles.applianceName}>{item.name}</Text>
         <Text style={styles.applianceConsumption}>{item.consumption} kWh</Text>
       </View>
+      {/* Aqui você ainda tem que fazer a função deleteAppliance, ok? */}
       <TouchableOpacity onPress={() => deleteAppliance(item.id)}>
         <Text style={styles.deleteText}>🗑️</Text>
       </TouchableOpacity>

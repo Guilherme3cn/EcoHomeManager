@@ -1,9 +1,8 @@
 // deviceController.js
-// src/controllers/deviceController.js
 
 import {
   insertDevice,
-  getAllDevices,
+  getDevicesByUsuarioId,
   getDeviceByIdOrName,
   updateDevice,
   deleteDevice,
@@ -12,26 +11,33 @@ import {
 // ✅ Agora todas as rotas funcionam sem autenticação JWT
 
 // Rota para cadastrar um novo dispositivo
-export const cadastrarDispositivo = async (req, res) => {
-  try {
-    const { nome, consumo, icone } = req.body;
+export async function cadastrarDispositivo(req, res) {
+  const { nome, consumo, icone, usuario_id } = req.body;
 
-    const id = await insertDevice(nome, consumo, icone);
-    res.status(201).json({ mensagem: 'Dispositivo cadastrado com sucesso!', id });
-  } catch (error) {
-    console.error('Erro ao cadastrar dispositivo:', error);
-    res.status(500).json({ mensagem: 'Erro ao cadastrar dispositivo.', erro: error.message });
+  if (!nome || !consumo || !icone || !usuario_id) {
+    return res.status(400).json({ mensagem: "Dados incompletos." });
   }
-};
+
+  try {
+    const novoDispositivo = await insertDevice(nome, consumo, icone, usuario_id);
+    res.status(201).json({ mensagem: "Dispositivo cadastrado com sucesso!", id: novoDispositivo.insertId });
+  } catch (error) {
+    console.error("Erro ao cadastrar dispositivo:", error);
+    res.status(500).json({ mensagem: "Erro ao cadastrar dispositivo." });
+  }
+}
+
 
 // Rota para listar todos os dispositivos (sem autenticação)
 export const listarDispositivosDoUsuario = async (req, res) => {
+  const { usuarioId } = req.params;
+
   try {
-    const dispositivos = await getAllDevices();
+    const dispositivos = await getDevicesByUsuarioId(usuarioId);
     res.status(200).json(dispositivos);
   } catch (error) {
-    console.error('Erro ao listar dispositivos:', error);
-    res.status(500).json({ mensagem: 'Erro ao listar dispositivos.' });
+    console.error('Erro ao buscar dispositivos:', error);
+    res.status(500).json({ mensagem: 'Erro interno no servidor.' });
   }
 };
 
